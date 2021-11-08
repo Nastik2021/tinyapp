@@ -20,6 +20,18 @@ app.get("/hello", (req, res) => {
 });
 
 
+// app.get("/set", (req, res) => {
+//   const a = 1;
+//   res.send(`a = ${a}`);
+// });
+ 
+// app.get("/fetch", (req, res) => {
+//   res.send(`a = ${a}`);
+// });
+
+
+
+
 app.listen(PORT, () => {                                //code for the server to listen to the client...
   console.log(`Example app listening on port ${PORT}!`);
 });
