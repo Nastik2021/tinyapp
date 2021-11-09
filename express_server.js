@@ -29,9 +29,21 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  //console.log(req.body);  // Log the POST request body to the console
+  let shortURL = generateRandomString(req.body.longURL);
+  urlDatabase[shortURL] = req.body.longURL;
+  //console.log(urlDatabase);
+  res.redirect(`/urls/${shortURL}`);
 });
+
+//requests to the endpoint "/u/:shortURL" will redirect to its longURL
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(`http://${longURL}`);
+});
+
+
+
 
 function generateRandomString() {
   const result = Math.random().toString(36).substr(2,6);
@@ -58,6 +70,14 @@ generateRandomString();
 // });
 
 
+//code for the server to listen to the client...
+app.listen(PORT, () => {
+  console.log(`tinyapp listening on port ${PORT}!`);
+});
+
+
+
+
 // app.get("/set", (req, res) => {
 //   const a = 1;
 //   res.send(`a = ${a}`);
@@ -67,10 +87,4 @@ generateRandomString();
 //   res.send(`a = ${a}`);
 // });
 
-
-
-//code for the server to listen to the client...
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
 
