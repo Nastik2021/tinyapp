@@ -13,6 +13,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
+
+
+// page localhot:8080/urls/new (where we can create a new tinyurl)
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -28,6 +34,8 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+
+
 app.post("/urls", (req, res) => {
   //console.log(req.body);  // Log the POST request body to the console
   let shortURL = generateRandomString(req.body.longURL);
@@ -40,6 +48,13 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(`http://${longURL}`);
+});
+
+////requests to Delete a url
+app.post('/urls/:shortURL/delete', (req, res) => {
+
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
 });
 
 
@@ -57,9 +72,7 @@ generateRandomString();
 
 
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
+
 
 // app.get("/urls.json", (req, res) => {
 //   res.json(urlDatabase);
@@ -68,6 +81,8 @@ generateRandomString();
 // app.get("/hello", (req, res) => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 // });
+
+
 
 
 //code for the server to listen to the client...
