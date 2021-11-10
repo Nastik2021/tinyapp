@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");    //installed body-parser
 app.use(bodyParser.urlencoded({extended: true}));
 
 const cookieParser = require('cookie-parser');  // installed cookie-parser
+const { resolveInclude } = require("ejs");
 app.use(cookieParser());  ////DO I NEED THIS LINE???
 
 // -----------------//
@@ -99,6 +100,11 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+
+// REGISTRATION page, allowing user to register , using email and password
+app.get("/register", (req, res) => {
+  res.render('urls_registration');
+});
 
 
 
