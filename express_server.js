@@ -17,6 +17,16 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const generateRandomString = function()  {
+  const result = Math.random().toString(36).substr(2,6);
+  return result;
+  //console.log(Math.random().toString(36))
+  //console.log(result);
+};
+//generateRandomString();
+
+
+
 // Main page
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
@@ -85,27 +95,13 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
 //const username = req.body.username;
 //console.log(username);
-res.cookie('username', req.body.username);
-res.redirect("/urls");
+  res.cookie('username', req.body.username);
+  res.redirect("/urls");
 });
 
 
 
 
-
-
-
-
-
-
-
-function generateRandomString() {
-  const result = Math.random().toString(36).substr(2,6);
-  return result;
-  //console.log(Math.random().toString(36))
-  //console.log(result);
-}
-//generateRandomString();
 
 
 //code for the server to listen to the client...
