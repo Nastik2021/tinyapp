@@ -7,6 +7,10 @@ app.set("view engine", "ejs");    //telling Express to use EJS as templating eng
 const bodyParser = require("body-parser");    //installed body-parser
 app.use(bodyParser.urlencoded({extended: true}));
 
+const cookieParser = require('cookie-parser');  // installed cookie-parser
+app.use(cookieParser());  ////DO I NEED THIS LINE???
+
+// -----------------//
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -74,6 +78,15 @@ app.post("/urls/:shortURL", (req, res) => {
   //console.log(shortURL)
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect("/urls");
+});
+
+
+// Login page
+app.post("/login", (req, res) => {
+//const username = req.body.username;
+//console.log(username);
+res.cookie('username', req.body.username);
+res.redirect("/urls");
 });
 
 
