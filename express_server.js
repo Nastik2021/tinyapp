@@ -19,7 +19,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// page where we make a new request
+// Page where we make a new request
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -51,10 +51,37 @@ app.get("/u/:shortURL", (req, res) => {
 
 ////requests to Delete a url
 app.post('/urls/:shortURL/delete', (req, res) => {
-
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
+
+
+// app.post('/urls/:id', (req, res) => {
+
+// // console.log(req.params.id);
+// // console.log(req.body.longURL);
+// urlDatabase[req.params.id] = req.body.longURL;
+
+// //res.send('ok');
+// //console.log(updateLongURL);
+// //res.redirect('/urls');
+
+// //});
+
+
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  //console.log(shortURL)
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect("/urls");
+});
+
+
+
+
+
+
+
 
 
 
@@ -65,7 +92,7 @@ function generateRandomString() {
   //console.log(Math.random().toString(36))
   //console.log(result);
 }
-generateRandomString();
+//generateRandomString();
 
 
 //code for the server to listen to the client...
