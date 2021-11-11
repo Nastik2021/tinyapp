@@ -1,9 +1,15 @@
-
-
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -11,23 +17,13 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
 
-
-        <% if (user !== undefined) { %>
-          <%= user.email %>
+        <% if (user) { %> <%= user.email %>
+        <a href="/logout"><button>LOGOUT</button></a>
+        <% } else { %>
+        <a href="/login"><button>LOGIN</button></a>
+        <a href="/register"><button>REGISTER</button></a>
 
         <% } %>
-       
-        <form method="Post" action="/login">
-           <!-- <label for="email">Email</label> -->
-          <!-- <input type="text" name="email" id="email" /> -->
-          <!-- <label for="">Password</label> -->
-          <input type=text name="username" id="password" class="Username" placeholder="Username"  /> 
-          <button>Login</button>
-        </form>
-     
-
-
-
       </div>
     </div>
   </nav>

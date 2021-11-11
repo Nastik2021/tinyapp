@@ -51,6 +51,7 @@ app.get("/urls", (req, res) => {
   const userId = req.cookies["user_id"];
   const user = users[userId];
   const templateVars = { urls: urlDatabase, user: user };
+  console.log(userId);
   res.render("urls_index", templateVars);
 });
 
@@ -114,8 +115,15 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
+/// LOGIN page (GET)
+app.get("/login", (req, res) => {
+  const templateVars = { user: users[req.cookies["user_id"]] };
+  res.render("urls_login", templateVars);
+});
 
-// Login page
+
+
+// Login page (POST)
 app.post("/login", (req, res) => {
 //const username = req.body.username;
 //console.log(username);
@@ -129,14 +137,10 @@ app.post("/login", (req, res) => {
 app.get("/register", (req, res) => {
   // get user id from cookie
   const userId = req.cookies["user_id"];
-  console.log("This is the userId:", userId);
-  console.log("the global user object: ", users);
   const user = users[userId];
-  console.log("this is the USER: ", user);
   const templateVars = { urls: urlDatabase, user: user };
   res.render('urls_registration', templateVars);
 });
-
 
 
 //REGISTRATION page: handles the registration form data
