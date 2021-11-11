@@ -9,7 +9,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 const cookieParser = require('cookie-parser');  // installed cookie-parser
 const { resolveInclude } = require("ejs");
-app.use(cookieParser());  ////DO I NEED THIS LINE???
+app.use(cookieParser());
+
+
+// helper function
+const { emailLookup } = require("./helperFunctions");
+
 
 // -----------------//
 
@@ -136,26 +141,36 @@ app.get("/register", (req, res) => {
 
 //REGISTRATION page: handles the registration form data
 app.post("/register", (req, res) => {
-  console.log("this is our users before adding a new user:", users);
   const {email, password} = req.body;
+  // handling errors (empty email or password fields)
+  if (email === '') {
+    return res.status(400).send('Email is required');
+  }
+  if (password === '') {
+    return res.status(400).send('Password is required');
+  }
+  
+  if (emailLookup(email, users)) {
+    return res.status(400).send('This email is already registered');
+  }
+  //updating -users- object (which is our database)
   let userID = generateRandomString();
-  //updatings users object
   const user = {
     id: userID,
     email: email,
     password: password
   };
-
   users[userID] = user;
-  // users[abcd] = {
-        //  id: abcd,
-        // email: abcd@gmail.com,
-        // password: hello
-  //}
   res.cookie('user_id', userID);
-  console.log("this is our users after adding a new user:", users);
-  res.redirect('/urls');
+  
+  // users[abcd] = {
+  //  id: abcd,
+  // email: abcd@gmail.com,
+  // password: hello
+  //}
 
+  // res.cookie('user_id', userID);
+  res.redirect('/urls');
 });
 
 
