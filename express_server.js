@@ -18,25 +18,43 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Function that generates random alphanumeric string
 const generateRandomString = function()  {
   const result = Math.random().toString(36).substr(2,6);
   return result;
-  //console.log(Math.random().toString(36))
-  //console.log(result);
 };
-//generateRandomString();
+
+// Object that stores all the users
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
 
 
 
 // Main page
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  // get user id from cookie
+  const userId = req.cookies["user_id"];
+  const user = users[userId];
+  const templateVars = { urls: urlDatabase, user: user };
   res.render("urls_index", templateVars);
 });
 
 // Page where we make a new request
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const userId = req.cookies["user_id"];
+  const user = users[userId];
+  const templateVars = { urls: urlDatabase, user: user };
+  res.render("urls_new", templateVars);
 });
 
 
@@ -97,16 +115,48 @@ app.post("/login", (req, res) => {
 //const username = req.body.username;
 //console.log(username);
   res.cookie('username', req.body.username);
+  // res.cookie('user_id', req.body.username);
   res.redirect("/urls");
 });
 
 
-// REGISTRATION page, allowing user to register , using email and password
+// REGISTRATION page, allowing user to register, using email and password
 app.get("/register", (req, res) => {
-  res.render('urls_registration');
+  // get user id from cookie
+  const userId = req.cookies["user_id"];
+  console.log("This is the userId:", userId);
+  console.log("the global user object: ", users);
+  const user = users[userId];
+  console.log("this is the USER: ", user);
+  const templateVars = { urls: urlDatabase, user: user };
+  res.render('urls_registration', templateVars);
 });
 
 
+
+//REGISTRATION page: handles the registration form data
+app.post("/register", (req, res) => {
+  console.log("this is our users before adding a new user:", users);
+  const {email, password} = req.body;
+  let userID = generateRandomString();
+  //updatings users object
+  const user = {
+    id: userID,
+    email: email,
+    password: password
+  };
+
+  users[userID] = user;
+  // users[abcd] = {
+        //  id: abcd,
+        // email: abcd@gmail.com,
+        // password: hello
+  //}
+  res.cookie('user_id', userID);
+  console.log("this is our users after adding a new user:", users);
+  res.redirect('/urls');
+
+});
 
 
 
@@ -114,8 +164,6 @@ app.get("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`tinyapp listening on port ${PORT}!`);
 });
-
-
 
 
 // app.get("/", (req, res) => {
