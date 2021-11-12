@@ -2,7 +2,7 @@
 const emailLookup =  function(email, database) {
   for (let key in database) {
     if (database[key].email === email) {
-      return email;
+      return database[key];
     }
   }
   return false;

@@ -13,7 +13,7 @@ app.use(cookieParser());
 
 
 // helper function
-const { emailLookup } = require("./helperFunctions");
+const { emailLookup } = require("./helpers");
 
 
 // -----------------//
@@ -34,7 +34,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "123"
   },
   "user2RandomID": {
     id: "user2RandomID",
@@ -42,6 +42,11 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+
+// Once connected to the server, re-direct to the Login page.
+app.get("/", (req, res) => {
+  res.redirect("/login");
+});
 
 
 
@@ -104,7 +109,6 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 // //res.send('ok');
 // //console.log(updateLongURL);
 // //res.redirect('/urls');
-
 // //});
 
 
@@ -117,20 +121,36 @@ app.post("/urls/:shortURL", (req, res) => {
 
 /// LOGIN page (GET)
 app.get("/login", (req, res) => {
+  if (req.cookies["user_id"]) {
+    return res.redirect("/urls");
+  }
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_login", templateVars);
 });
 
 
-
-// Login page (POST)
+// LOGIN page (POST)
 app.post("/login", (req, res) => {
-//const username = req.body.username;
-//console.log(username);
-  res.cookie('username', req.body.username);
-  // res.cookie('user_id', req.body.username);
+  const {email, password} = req.body;
+
+  if (!email || !password) {
+    return res.status(403).send('You cannnot have email or password empty');
+  }
+  const user = emailLookup(email, users);
+  if (!user) {
+    return res.status(403).send('Email doesnt exist');
+  }
+  if (user["password"] !==  password) {
+    return res.status(403).send('Password doesnt match!');
+  }
+
+
+  res.cookie('user_id', user.id);
   res.redirect("/urls");
 });
+
+
+
 
 
 // REGISTRATION page, allowing user to register, using email and password
@@ -141,7 +161,6 @@ app.get("/register", (req, res) => {
   const templateVars = { urls: urlDatabase, user: user };
   res.render('urls_registration', templateVars);
 });
-
 
 //REGISTRATION page: handles the registration form data
 app.post("/register", (req, res) => {
@@ -177,6 +196,14 @@ app.post("/register", (req, res) => {
   res.redirect('/urls');
 });
 
+//LOGOUT page
+app.post('/logout', (req, res) => {
+  //req.session = null;
+  res.clearCookie("user_id");
+  res.redirect('/urls');
+});
+
+
 
 
 //code for the server to listen to the client...
@@ -185,14 +212,7 @@ app.listen(PORT, () => {
 });
 
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
+
 // app.get("/urls.json", (req, res) => {
 //   res.json(urlDatabase);
 // });
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
-
-
