@@ -1,35 +1,46 @@
 const express = require("express");
+const bcrypt = require('bcryptjs');
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
+
 
 app.set("view engine", "ejs");    //telling Express to use EJS as templating engine
+app.use(bodyParser.urlencoded({extended: true}));
 
 const bodyParser = require("body-parser");    //installed body-parser
-app.use(bodyParser.urlencoded({extended: true}));
 
 const cookieParser = require('cookie-parser');  // installed cookie-parser
 const { resolveInclude } = require("ejs");
 app.use(cookieParser());
 
 
-// helper function
-const { emailLookup } = require("./helpers");
+// Helper functions
+const { emailLookup, urlsForUser, generateRandomString} = require("./helpers");
 
 
 // -----------------//
 
+// Urls Database
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID:  "userRandomID"
+  },
+
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID:  "userRandomID"
+  },
+
+  "testID": {
+    longURL: "http://www.hello.com",
+    userID:  "user2RandomID"
+  },
 };
 
-// Function that generates random alphanumeric string
-const generateRandomString = function()  {
-  const result = Math.random().toString(36).substr(2,6);
-  return result;
-};
 
-// Object that stores all the users
+
+// Users Database
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -39,40 +50,66 @@ const users = {
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "123"
   }
 };
 
 // Once connected to the server, re-direct to the Login page.
 app.get("/", (req, res) => {
+  const userId = req.session.user_id;
+  if (userId) {
+    return res.redirect("/urls");
+  }
   res.redirect("/login");
 });
 
 
-
-// Main page
+// GET /urls (page showing My Urls but only if user is logged in)
 app.get("/urls", (req, res) => {
   // get user id from cookie
   const userId = req.cookies["user_id"];
   const user = users[userId];
-  const templateVars = { urls: urlDatabase, user: user };
-  console.log(userId);
+
+  if (!userId) {
+    return res.status(403).send("Please Login first");   /// to verify....???
+  }
+
+  const usersUrls = urlsForUser(userId, urlDatabase);
+  const templateVars = { urls: usersUrls, user: user };
   res.render("urls_index", templateVars);
 });
 
-// Page where we make a new request
+
+
+
+
+
+// GET /urls/new (create new URL)
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies["user_id"];
-  const user = users[userId];
-  const templateVars = { urls: urlDatabase, user: user };
-  res.render("urls_new", templateVars);
+  if (userId) {
+    const user = users[userId];
+    const templateVars = { urls: urlDatabase, user: user };
+    res.render("urls_new", templateVars);
+  } else {
+    return res.redirect("/login");
+  }
 });
 
-
+// GEt /urls/:shortURL
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  
+  
+  
+  
+  
   res.render("urls_show", templateVars);
 });
+
+
+
+
 
 // generates a short URL and adds it to the database
 app.post("/urls", (req, res) => {
@@ -87,8 +124,8 @@ app.post("/urls", (req, res) => {
 
 //requests to the endpoint "/u/:shortURL" will redirect to its longURL website
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(`http://${longURL}`);
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(`${longURL}`);
 });
 
 
@@ -143,7 +180,6 @@ app.post("/login", (req, res) => {
   if (user["password"] !==  password) {
     return res.status(403).send('Password doesnt match!');
   }
-
 
   res.cookie('user_id', user.id);
   res.redirect("/urls");
@@ -212,7 +248,3 @@ app.listen(PORT, () => {
 });
 
 
-
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
