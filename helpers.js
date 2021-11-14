@@ -22,16 +22,14 @@ const urlsForUser = (userID, urlDatabase) => {
   return userUrls;
 };
 
+
+
+
 // Function that generates random alphanumeric string
 const generateRandomString = function()  {
   const result = Math.random().toString(36).substr(2,6);
   return result;
 };
-
-
-
-
-
 
 
 
