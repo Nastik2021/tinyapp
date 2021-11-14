@@ -4,9 +4,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](#)
+!["screenshot of the Login page"](https://github.com/Nastik2021/tinyapp/blob/master/docs/login.png?raw=true)
 
-!["screenshot description"](#)
+!["screenshot of MyUrls page"](https://github.com/Nastik2021/tinyapp/blob/master/docs/myUrls.png?raw=true)
 
 ## Dependencies
 
