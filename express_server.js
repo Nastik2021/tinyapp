@@ -18,9 +18,7 @@ app.use(cookieSession({
 
 
 
-
 // const { resolveInclude } = require("ejs");     to verify ???
-
 
 
 // Helper functions
@@ -45,6 +43,7 @@ const urlDatabase = {
     longURL: "http://www.hello.com",
     userID:  "user2RandomID"
   },
+  // all new shortURLs added to the urlDatabase are added with the key userId instead of userID. Case sensitivity will affect urlsForUser if not checked for.
 };
 
 
@@ -66,7 +65,7 @@ const users = {
 
 
 
-// Once connected to the server, re-direct to the Login page./////checked
+// Once connected to the server, re-direct to the Login page.
 app.get("/", (req, res) => {
   const userId = req.session.user_id;
   if (userId) {
@@ -76,7 +75,7 @@ app.get("/", (req, res) => {
 });
 
 
-// GET /urls (page showing My Urls but only if user is logged in) ///checked
+// GET /urls (page showing My Urls but only if user is logged in)
 app.get("/urls", (req, res) => {
   // get user id from cookie
   const userId = req.session.user_id;
@@ -93,9 +92,7 @@ app.get("/urls", (req, res) => {
 
 
 
-
-
-// GET /urls/new (create new URL) //////checked
+// GET /urls/new (create new URL)
 app.get("/urls/new", (req, res) => {
   const userId = req.session.user_id;
   if (!userId) {
@@ -108,14 +105,14 @@ app.get("/urls/new", (req, res) => {
 
 
 
-// GEt /urls/:shortURL  ///////////////////////// checked
+// GEt /urls/:shortURL
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
-  const shortURL = req.params.shortURL; ////////
+  const shortURL = req.params.shortURL;
   if (!userId) {
     return res.status(403).send("Please Login first");
   }
-  if (!urlsForUser(userId)[shortURL]) {
+  if (!urlsForUser(userId, urlDatabase)[shortURL]) {
     return res.status(404).send("404: Page not found");
   }
   
@@ -124,15 +121,13 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[shortURL].longURL,
     user: users[userId],
   };
-  
+  console.log('template vars =>', templateVars);
   res.render("urls_show", templateVars);
 });
 
 
 
-
-
-// generates a short URL and adds it to the database   ////checked
+// generates a short URL and adds it to the database
 app.post("/urls", (req, res) => {
   const userId = req.session.user_id;
   if (!userId) {
@@ -141,13 +136,13 @@ app.post("/urls", (req, res) => {
 
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userId };
- 
+  console.log('line 141 =>', { shortURL, databaseShortURL: urlDatabase[shortURL] });
   res.redirect(`/urls/${shortURL}`);
 });
 
 
 
-//requests to the endpoint "/u/:shortURL" will redirect to its longURL website ////checked
+//requests to the endpoint "/u/:shortURL" will redirect to its longURL website
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (!urlDatabase[shortURL]) {
@@ -155,19 +150,23 @@ app.get("/u/:shortURL", (req, res) => {
   }
 
   const redirectUrl = urlDatabase[shortURL].longURL;
-  return res.redirect(redirectUrl);
+  console.log({redirectUrl});
+
+  // The res.redirect() function redirects to the URL derived from the specified path, with specified status, a integer (positive) which corresponds to an HTTP status code. The default status is “302 Found”.
+  return res.redirect("http://" + redirectUrl);
+  // return res.redirect(longURL);
 });
 
 
 
-// POST (delete a single shortURL)                        // checked
+// POST (delete a single shortURL)
 app.post('/urls/:shortURL/delete', (req, res) => {
   const userId = req.session.user_id;
   const shortURL = req.params.shortURL;
   if (!userId) {
     return res.status(403).send("You do not have permission");
   }
-  if (!urlsForUser(userId)[shortURL]) {
+  if (!urlsForUser(userId, urlDatabase)[shortURL]) {
     return res.status(404).send("404: Not found");
   }
   delete urlDatabase[shortURL];
@@ -176,14 +175,14 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 
 
-// POST for urls/:shortURL                              ///// checked
+// POST for urls/:shortURL
 app.post("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const shortURL = req.params.shortURL;
   if (!userId) {
     return res.status(403).send("You do not have permission");
   }
-  if (!urlsForUser(userId)[shortURL]) {
+  if (!urlsForUser(userId, urlDatabase)[shortURL]) {
     return res.status(404).send("404: Page is not found");
   }
   
@@ -194,7 +193,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 
 
-/// LOGIN page (GET)    //////////////////checked
+/// LOGIN page (GET)
 app.get("/login", (req, res) => {
   const userId = req.session.user_id;
   if (users[userId]) {
@@ -208,7 +207,7 @@ app.get("/login", (req, res) => {
 });
 
 
-// LOGIN page (POST)  ////////////////////// checked
+// LOGIN page (POST)
 app.post("/login", (req, res) => {
   const {email, password} = req.body;
 
@@ -231,7 +230,7 @@ app.post("/login", (req, res) => {
 
 
 
-// REGISTRATION page, allowing user to register, using email and password      /////checked
+// REGISTRATION page, allowing user to register, using email and password
 app.get("/register", (req, res) => {
   // get user id from cookie
   const userId = req.session.user_id;
@@ -248,7 +247,7 @@ app.get("/register", (req, res) => {
 
 
 
-//REGISTRATION page: handles the registration form data /////////// checked
+//REGISTRATION page: handles the registration form data
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const enteredPassword = req.body.password;
@@ -276,7 +275,7 @@ app.post("/register", (req, res) => {
 });
 
 
-//LOGOUT page                           //// checked
+//LOGOUT page
 app.post('/logout', (req, res) => {
   //req.session = null;
   req.session = null;  //this clears the cookie session
