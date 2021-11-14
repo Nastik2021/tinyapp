@@ -10,8 +10,30 @@ const emailLookup =  function(email, database) {
 
 
 
+const urlsForUser = (userID, urlDatabase) => {
+  const userUrls = {};
+  for (let key in urlDatabase) {
+    const url = urlDatabase[key];
+
+    if (userID === url.userID) {
+      userUrls[key] = url;
+    }
+  }
+  return userUrls;
+};
+
+// Function that generates random alphanumeric string
+const generateRandomString = function()  {
+  const result = Math.random().toString(36).substr(2,6);
+  return result;
+};
 
 
 
 
-module.exports = { emailLookup };
+
+
+
+
+
+module.exports = { emailLookup, urlsForUser, generateRandomString };

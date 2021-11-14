@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080;
+var cookieSession = require('cookie-session)')
 
 
 app.set("view engine", "ejs");    //telling Express to use EJS as templating engine
@@ -177,8 +178,8 @@ app.post("/login", (req, res) => {
   if (!user) {
     return res.status(403).send('Email doesnt exist');
   }
-  if (user["password"] !==  password) {
-    return res.status(403).send('Password doesnt match!');
+  if (!bcrypt.compareSync(password, user.password)) { //checks if password matches using bcrypt.compareSync
+    return res.status(403).send("Password doesn't match");
   }
 
   res.cookie('user_id', user.id);
@@ -212,8 +213,10 @@ app.post("/register", (req, res) => {
   if (emailLookup(email, users)) {
     return res.status(400).send('This email is already registered');
   }
-  //updating -users- object (which is our database)
-  let userID = generateRandomString();
+  //updating our -users- database
+  const userID = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(password, 10); //hashing the password
+
   const user = {
     id: userID,
     email: email,
